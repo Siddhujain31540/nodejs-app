@@ -1,0 +1,38 @@
+name: Node.js CI/CD to Elastic Beanstalk 🚀
+
+on:
+  push:
+    branches:
+      - main # Ya 'master', jo aapki branch ho.
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout Source
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js 18 # Ya jo bhi Node.js version aap use kar rahe hain
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install Dependencies
+        run: npm install
+        # working-directory: ./nodejs-app # Agar aapka code kisi sub-folder mein hai, toh ise uncomment karein
+
+      - name: Generate Deployment Package (Zip)
+        run: zip -r nodejs-app-build.zip .
+        
+      - name: Deploy to Elastic Beanstalk 
+        uses: einaregilsson/beanstalk-deploy@v21 # Deploy action
+        with:
+          # --- Secrets (Yeh values aapke GitHub Secrets mein honi chahiye) ---
+          aws_access_key: ${{ secrets.AWS_ACCESS_KEY_ID }} 
+          aws_secret_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          application_name: ${{ secrets.EB_APP_NAME }} # Beanstalk App Name
+          environment_name: ${{ secrets.EB_ENV_NAME }} # Beanstalk Environment Name
+          version_label: 12345
+          region: us-east-1
+          deployment_package: deploy.zip
