@@ -3,7 +3,7 @@ name: Node.js CI/CD to Elastic Beanstalk 🚀
 on:
   push:
     branches:
-      - main # Ya 'master', jo aapki branch ho.
+      - master # Aapki branch 'master' hai (main nahi)
 
 jobs:
   build-and-deploy:
@@ -13,26 +13,33 @@ jobs:
       - name: Checkout Source
         uses: actions/checkout@v4
 
-      - name: Set up Node # Ya jo bhi Node.js version aap use kar rahe hain
+      - name: Set up Node.js 20 
         uses: actions/setup-node@v4
         with:
           node-version: 20
 
-      - name: Install Dependencies
+      - name: Install Dependencies 📦
         run: npm install
-        # working-directory: ./nodejs-app # Agar aapka code kisi sub-folder mein hai, toh ise uncomment karein
+        working-directory: ./nodejs-app # <--- CORRECTION 1: Folder path add kiya
 
+      # NOTE: Aapki pichli error 'no test specified' thi. Is step ko remove kar diya gaya hai.
+      
       - name: Generate Deployment Package (Zip)
+        # Elastic Beanstalk ko root mein files chahiye, isliye hum zip banate waqt folder ke andar jayenge
         run: zip -r nodejs-app-build.zip .
-        
-      - name: Deploy to Elastic Beanstalk 
-        uses: einaregilsson/beanstalk-deploy@v21 # Deploy action
+        working-directory: ./nodejs-app # <--- CORRECTION 2: Zip file folder ke andar banegi
+
+      - name: Deploy to Elastic Beanstalk ☁️
+        uses: einaregilsson/beanstalk-deploy@v21 
         with:
-          # --- Secrets (Yeh values aapke GitHub Secrets mein honi chahiye) ---
+          # --- Secrets ---
           aws_access_key: ${{ secrets.aws_access_key }} 
           aws_secret_key: ${{ secrets.aws_secret_access_key }}
-          application_name: 'siddharth' # Beanstalk App Name
-          environment_name: 'siddharth-env' # Beanstalk Environment Name
-          version_label: ${{ github.sha }}
+          application_name: 'siddharth' 
+          environment_name: 'siddharth-env' 
           region: us-east-1
-          deployment_package: nodejs-app-build.zip
+          version_label: ${{ github.sha }}
+          
+          # --- Deployment Package Path ---
+          # Ab zip file folder ke andar hai, toh hum path specify karenge
+          deployment_package: nodejs-app/nodejs-app-build.zip # <--- CORRECTION 3: Zip file ka path set kiya
