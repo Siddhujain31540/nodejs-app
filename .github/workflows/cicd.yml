@@ -29,8 +29,8 @@ jobs:
         uses: einaregilsson/beanstalk-deploy@v21 # Deploy action
         with:
           # --- Secrets (Yeh values aapke GitHub Secrets mein honi chahiye) ---
-          aws_access_key: ${{ secrets.AWS_ACCESS_KEY_ID }} 
-          aws_secret_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws_access_key: ${{ secrets.aws_access_key }} 
+          aws_secret_key: ${{ secrets.aws_secret_access_key }}
           application_name: 'siddharth' # Beanstalk App Name
           environment_name: 'siddharth-env' # Beanstalk Environment Name
           version_label: ${{ github.sha }}
